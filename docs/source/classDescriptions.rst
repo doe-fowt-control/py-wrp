@@ -1,5 +1,5 @@
 Classes
 =======
 
-.. automodule:: wrp
+.. automodule:: source.wrp
     :members:
