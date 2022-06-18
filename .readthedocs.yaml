@@ -1,14 +1,32 @@
+# version: 2
+
+# build:
+#   tools:
+#     python: "3.10.2"
+
+# # Build from the docs/ directory with Sphinx
+# sphinx:
+#   configuration: docs/conf.py
+
+# # Explicitly set the version of Python and its requirements
+# python:
+#   install:
+#     - requirements: docs/requirements.txt
+
+
+# .readthedocs.yml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
 version: 2
 
-build:
-  tools:
-    python: "3.10.2"
-
-# Build from the docs/ directory with Sphinx
 sphinx:
   configuration: docs/conf.py
 
-# Explicitly set the version of Python and its requirements
+formats: all
+
 python:
+  version: 3.10.2
   install:
     - requirements: docs/requirements.txt
