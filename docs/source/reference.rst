@@ -1,8 +1,21 @@
-Classes
-=======
+Reference
+=========
 
-.. math::
-    \omega^2 = gk
+.. module:: src.wrp
 
-.. automodule:: src.wrp
+DataManager
+-----------
+
+.. autoclass:: DataManager
+    :members:
+
+WRP
+---
+
+.. autoclass:: WRP
+    :members:
+
+WaveGauges
+----------
+.. autoclass:: WaveGauges
     :members:
