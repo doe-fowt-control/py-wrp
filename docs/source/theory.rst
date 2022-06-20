@@ -23,7 +23,7 @@ _______________
 The spatiotemporal region where we expect a good match between the reconstruction and reality is called the 'prediction zone.' 
 The prediction zone is defined by the amount of time used to measure the waves and the speed of the constituent waves. 
 
-Figure :numref:`wu0` is borrowed from Wu 2004 which illustrates the procedure for calculating prediction zone from a single probe. 
+The figures below are borrowed from Wu 2004 which illustrates the procedure for calculating prediction zone from a single probe. 
 For :math:`x_p` values greater than the position of the measurement probe :math:`x`, the time window for reasonable predictions at 
 :math:`x_p` is based on the slowest and fastest group velocities, :math:`C_{gl}` and :math:`C_{gh}` respectively.
 
@@ -32,31 +32,29 @@ For :math:`x_p` values greater than the position of the measurement probe :math:
     \leq t 
     \leq T_a + \frac{x_p - x_}{C_{gh}}
 
-.. _wu0:
 .. figure:: ../images/wu-0.png
     :width: 600
     Prediction zone based on fastest and slowest group velocities, as well as assimilation time. Borrowed from Wu 2004.
 
 
-Using multiple probes, the predictable region increases accordingly, where $x$ in the equation above becomes a reference to the largest and smallest locations in space.
+Using multiple probes, the predictable region increases accordingly, where :math:`x` in the equation above becomes a reference to the largest and smallest locations in space.
 
 .. math::
     \frac{ x_p - x_{\text{max}} } {C_{gl}} 
     \leq t 
     \leq T_a + \frac{ x_p - x_{\text{min}}}{C_{gh}}
 
-.. _wu-ng:
 .. figure:: ../images/wu-ng-pred.png
     :width: 600
     Prediction zone for multiple wave gauges. Borrowed from Wu 2004.
 
 Spectral calculations
----------------------
+_____________________
 
 Separately from reconstruction, a longer time scale is used to calculate the one directional frequency wave spectrum. By default, 30 seconds of wave height information is assimilated into the spectrum. We do this with the pwelch method to calculate power spectral density at the measurement gauges, taking the average for the case with multiple gauges. This method in MATLAB requires specification of three parameters: 
 
 
-From the spectrum, we calculate the zeroth moment $m_0$ as the area under the spectral curve. The significant wave height is then found as
+From the spectrum, we calculate the zeroth moment :math:`m_0` as the area under the spectral curve. The significant wave height is then found as
 
 .. math::
     H_s = 4 * \sqrt{m_0}
@@ -77,7 +75,7 @@ For deep water, group velocities are related to cutoff frequencies by
 
 
 Representation of surface
--------------------------
+_________________________
 
 For multiple wave gauges, we use a similar representation of the surface as that in Grilli et. al., 2011.
  The linear scaling is represented in the scaling coefficients :math:`a_n` and :math:`b_n` where :math:`n` indicates a different frequency.
@@ -88,7 +86,7 @@ For multiple wave gauges, we use a similar representation of the surface as that
 
 
 Inversion
----------
+_________
 
 To reconstruct the surface using measurements now come from multiple locations, we cannot simply use the DFT from a single probe. 
 Instead, we consider both the spatial and temporal components of each signal, and find optimal weights for linear constituent waves using linear regression.
@@ -100,7 +98,7 @@ The problem of finding optimal weights for reconstruction can be represented as 
 We first construct a data matrix :math:`\mathbf{X}` by evaluating :math:`\cos(\Psi_n)` and :math:`\sin(\Psi_n)` at every unique spatio-temporal point :math:`(x_l, t_l)`. 
 This results in a matrix of size :math:`L \times 2N` where :math:`L` is the number of spatio-temporal points (this changes depending on the amount of past data used during reconstruction). 
 The weight vector :math:`\mathbf{w}` contains :math:`a_n \cdot k_n^{-3/2}` and :math:`b_n \cdot k_n^{-3/2}`, and is of size :math:`2N \times 1`. 
-By multiplying these together we get an estimation of the surface, :math:`\Tilde{\eta}`, at each :math:`(1...L)` point.
+By multiplying these together we get an estimation of the surface, :math:`\tilde{\eta}`, at each :math:`(1...L)` point.
 
 .. math::
     \mathbf{\tilde{\eta}} = \mathbf{X}\mathbf{w}
@@ -128,7 +126,7 @@ We introduce L2 regularization to our algorithm with scaling parameter :math:`\l
 For this stage of implementation we have set :math:`\lambda = 0.05`, and not looked into tuning this parameter.
 
 Reconstruction bandwidth
-------------------------
+________________________
 
 To implement this algorithm, we need to define the frequencies and wavenumbers to be used to fit to surface itself. 
 The definitions for the highest and lowest wavenumbers are taken from Desmars et. al. 2020, and frequencies are determined correspondingly using the dispersion relation.
@@ -142,7 +140,8 @@ The smallest predictable location is then :math:`x_b = \text{min}_j(x_j)`.
 The largest predictable location is :math:`x_j = \text{max}_j(x_j) + T_a c_{gl}`, where :math:`c_{gl}` is the slowest applicable group velocity. 
 Finally, :math:`L_{\text{max}} = x_e - x_b`, and :math:`k_{\text{max}} = 2\pi / L_{\text{max}}`.
 
-According to Wu, the frequency resolution can be optimized, because resolution over a certain point increases computational cost without a significant increase in the quality of the fit. We have not optimized this parameter, merely choosing something that looks effective. For the examples studied here we chose to use 40 frequencies in our representation.
+According to Wu, the frequency resolution can be optimized, because resolution over a certain point increases computational cost without a significant increase in the quality of the fit. 
+We have not optimized this parameter, merely choosing something that looks effective. For the examples studied here we chose to use 100 frequencies in our representation.
 
 .. \subsection{Results using multiple probes}
 
