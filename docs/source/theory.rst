@@ -1,21 +1,14 @@
 Theory
 ======
 
-This is the math under the hood.
-
-Dispersion Relation
--------------------
-
-.. math::
-    \omega^2 = gk
-
 
 General technique
 -----------------
 
 The general approach is to deconstruct the entire wave field into a linear superposition of many constituent waves. 
 Using linear wave theory, the speed of each constituent wave is known based the dispersion relation for water surface waves. 
-With the combined knowledge of the constituent waves present and their speeds, the wave field can be propagated to a new location and time of interest.
+With the combined knowledge of the constituent waves present and their speeds, the wave field can be propagated to a new location and time 
+of interest.
 
 
 Assumptions
