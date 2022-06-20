@@ -32,9 +32,9 @@ For :math:`x_p` values greater than the position of the measurement probe :math:
     \leq t 
     \leq T_a + \frac{x_p - x_}{C_{gh}}
 
-.. figure:: ../images/wu-0.png
+.. image:: ../images/wu-0.png
     :width: 600
-    Prediction zone based on fastest and slowest group velocities, as well as assimilation time. Borrowed from Wu 2004.
+Prediction zone based on fastest and slowest group velocities, as well as assimilation time. Borrowed from Wu 2004.
 
 
 Using multiple probes, the predictable region increases accordingly, where :math:`x` in the equation above becomes a reference to the largest and smallest locations in space.
@@ -44,9 +44,10 @@ Using multiple probes, the predictable region increases accordingly, where :math
     \leq t 
     \leq T_a + \frac{ x_p - x_{\text{min}}}{C_{gh}}
 
-.. figure:: ../images/wu-ng-pred.png
+.. image:: ../images/wu-ng-pred.png
     :width: 600
-    Prediction zone for multiple wave gauges. Borrowed from Wu 2004.
+
+Prediction zone for multiple wave gauges. Borrowed from Wu 2004.
 
 Spectral calculations
 _____________________
