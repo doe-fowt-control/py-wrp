@@ -10,31 +10,38 @@ Dispersion Relation
     \omega^2 = gk
 
 
-General techniques
-------------------
+General technique
+-----------------
 
-Two variations on wave reconstruction are described; one which uses a single wave gauge, and one which uses multiple. Despite this difference, there is a significant amount of overlap between the two methods. The general approach for both techniques is to deconstruct the entire wave field into a linear superposition of many constituent waves. Using linear wave theory, the speed of each constituent wave is known based the dispersion relation for water surface waves. Using the combined knowledge of the constituent waves present and their speeds, we can propagate the wave field to a new location and time of interest.
+The general approach is to deconstruct the entire wave field into a linear superposition of many constituent waves. 
+Using linear wave theory, the speed of each constituent wave is known based the dispersion relation for water surface waves. 
+With the combined knowledge of the constituent waves present and their speeds, the wave field can be propagated to a new location and time of interest.
 
-In this section we list assumptions and techniques which are used for both single and multiple probe techniques.
 
 Assumptions
 ___________
 
-To attempt to represent the continuous surface with a set of frequencies, we assume that the spectrum can be reasonably represented by a finite frequency bandwidth, which agrees well with natural ocean wave spectrum that tend to have most of their energy around some peak frequency \cite{wu04}. 
+To attempt to represent the continuous surface with a set of frequencies, we assume that the spectrum can be reasonably represented 
+by a finite frequency bandwidth, which agrees well with natural ocean wave spectrum that tend to have most of their energy around 
+some peak frequency. This aligns with work done by Wu in 2004.
 
-We also assume that deep water wave relationships hold, or that the depth is greater than half the wavelength. This allows us to introduce the dispersion relation for deep water waves, relating the horizontal wavenumber $k$ with frequency $\omega$ as 
+We also assume that deep water wave relationships hold, or that the depth is greater than half the wavelength. This allows us to 
+introduce the dispersion relation for deep water waves, relating the horizontal wavenumber :math:`k` with frequency :math:`\omega` as 
 
 .. math::
     \omega^2 = gk
 
-where $g$ is the constant of gravitational acceleration.
+where :math:`g` is the constant of gravitational acceleration.
 
 Prediction zone
 _______________
 
-The spatiotemporal region where we expect a good match between the reconstruction and reality is called the `prediction zone.' The prediction zone is defined by the amount of time used to measure the waves and the speed of the constituent waves. While implementation varies slightly for the single gauge or multiple gauge approach, the concept is general and has many similarities across the two approaches. 
+The spatiotemporal region where we expect a good match between the reconstruction and reality is called the 'prediction zone.' 
+The prediction zone is defined by the amount of time used to measure the waves and the speed of the constituent waves. 
 
-:numref:`wu0` is borrowed from Wu 2004 which illustrates the procedure for calculating prediction zone from a single probe. For $x_p$ values greater than the position of the measurement probe $x$, the time window for reasonable predictions at $x_p$ is based on the slowest and fastest group velocities, $C_{gl}$ and $C_{gh}$ respectively.
+Figure :numref:`wu0` is borrowed from Wu 2004 which illustrates the procedure for calculating prediction zone from a single probe. 
+For :math:`x_p` values greater than the position of the measurement probe :math:`x`, the time window for reasonable predictions at 
+:math:`x_p` is based on the slowest and fastest group velocities, :math:`C_{gl}` and :math:`C_{gh}` respectively.
 
 .. math::
     \frac{x_p - x}{C_{gl}} 
