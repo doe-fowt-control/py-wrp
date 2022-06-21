@@ -93,7 +93,7 @@ class DataManager:
         pram: Params instance
         gauges: WaveGauges instance
         readSampleRate: frequency to read
-        writeSampleRate: freq to write
+        writeSampleRate: frequency to write
         updateInterval: spacing between callback
 
     

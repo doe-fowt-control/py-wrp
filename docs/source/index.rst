@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-A wave reconstruction and propagation library in python
-=======================================================
+Wave reconstruction and propagation (WRP)
+=========================================
 
 .. note::
 
@@ -29,8 +29,8 @@ If you already have git and GitHub installed on your computer, this should be as
 
 If you have never used git, you should 
 
-   - make an account on `github<https://github.com>`
-   - download and install `git<https://git-scm.com/downloads>`
+   - make an account on `github<https://github.com>`_
+   - download and install `git<https://git-scm.com/downloads>`_
    - Set up git with username and email in a terminal::
       $ git config --global user.name "Your name here"
       $ git config --global user.email "your_email@example.com"
@@ -39,8 +39,10 @@ If you have never used git, you should
       git clone https://github.com/doe-fowt-control/py-wrp.git
 
 This assumes that for new users you will simply want access to the code. To make changes or interact with the repository directly
-you will need to set up an SSH key. There is more information available online `here<https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh>`
+you will likely want to set up an SSH key. There is more information available online `here<https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh>`_.
 
+Contents
+--------
 
 .. toctree::
    overview
@@ -50,7 +52,7 @@ you will need to set up an SSH key. There is more information available online `
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

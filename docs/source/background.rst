@@ -8,7 +8,7 @@ In :ref:`layout` one can see a physical wave tank in which we generate waves tha
 We measure waves at one location, and predict their shape further down the tank where a float sits on the surface. 
 
 .. _layout:
-.. image:: ../wrp-layout.png
+.. image:: ../images/wrp-layout.png
 
 General technique
 -----------------

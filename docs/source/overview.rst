@@ -3,7 +3,7 @@ Code Overview
 
 This code was developed to imitate the style of data acquisition through a National Instruments DAQ_. 
 Data is handed in chunks to the PC whenever a certain number of samples accumulates in the `hardware` buffer,
- which corresponds to a certain amount of time depending on the sampling frequency. 
+which corresponds to a certain amount of time depending on the sampling frequency. 
 
 .. _DAQ: http://www.ni.com/en-us/shop/pxi.html
 

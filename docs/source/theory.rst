@@ -44,7 +44,7 @@ Using multiple probes, the predictable region increases accordingly, where :math
     \leq t 
     \leq T_a + \frac{ x_p - x_{\text{min}}}{C_{gh}}
 
-.. image:: ../images/wu-ng-pred.png
+.. figure:: ../images/wu-ng-pred.png
     :width: 600
 
 Prediction zone for multiple wave gauges. Borrowed from Wu 2004.
@@ -78,8 +78,8 @@ For deep water, group velocities are related to cutoff frequencies by
 Representation of surface
 _________________________
 
-For multiple wave gauges, we use a similar representation of the surface as that in Grilli et. al., 2011.
- The linear scaling is represented in the scaling coefficients :math:`a_n` and :math:`b_n` where :math:`n` indicates a different frequency.
+For multiple wave gauges, we use a similar representation of the surface as that in Grilli et. al., 2011. 
+The linear scaling is represented in the scaling coefficients :math:`a_n` and :math:`b_n` where :math:`n` indicates a different frequency.
 
 .. math::
     \eta_{\mathrm{L}}(\boldsymbol{x}, t)=\sum_{n=1}^{N} k_{n}^{-3 / 2}\left\{a_{n} \cos \Psi_{n}+b_{n} \sin \Psi_{n}\right\} ; \Psi_{n} = (k_nx - \omega_n t)
