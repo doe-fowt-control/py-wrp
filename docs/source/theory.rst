@@ -28,9 +28,9 @@ For :math:`x_p` values greater than the position of the measurement probe :math:
 :math:`x_p` is based on the slowest and fastest group velocities, :math:`C_{gl}` and :math:`C_{gh}` respectively.
 
 .. math::
-    \frac{x_p - x}{C_{gl}} 
+    \frac{ x_p - x }{ C_{gl} } 
     \leq t 
-    \leq T_a + \frac{x_p - x_}{C_{gh}}
+    \leq T_a + \frac{ x_p - x }{C_{gh}}
 
 .. image:: ../images/wu-0.png
     :width: 600
