@@ -45,6 +45,19 @@ you will likely want to set up an SSH_ key.
 .. _git: https://git-scm.com/downloads
 .. _SSH: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh
 
+Dependencies
+____________
+
+The following python libraries will be required to run the program
+- numpy
+- matplotlib
+- scipy
+
+Running
+-------
+
+Once the repository is downloaded as well as required libraries, you can run the script to read saved data by navigating to the base directory and calling::
+   $ python scripts/staticVis.py
 
 Contents
 --------
