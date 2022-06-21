@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../py-wrp')
 
-from source.wrp import Params, WaveGauges, DataLoader, DataManager, WRP
+from src.wrp import Params, WaveGauges, DataLoader, DataManager, WRP
 import matplotlib.pyplot as plt
 import time
 
