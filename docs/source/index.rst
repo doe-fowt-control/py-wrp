@@ -29,8 +29,8 @@ If you already have git and GitHub installed on your computer, this should be as
 
 If you have never used git, you should 
 
-   - make an account on `github<https://github.com>`_
-   - download and install `git<https://git-scm.com/downloads>`_
+   - make an account on github_
+   - download and install git_
    - Set up git with username and email in a terminal::
       $ git config --global user.name "Your name here"
       $ git config --global user.email "your_email@example.com"
@@ -39,7 +39,12 @@ If you have never used git, you should
       git clone https://github.com/doe-fowt-control/py-wrp.git
 
 This assumes that for new users you will simply want access to the code. To make changes or interact with the repository directly
-you will likely want to set up an SSH key. There is more information available online `here<https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh>`_.
+you will likely want to set up an SSH_ key.
+
+.. _github: https://github.com
+.. _git: https://git-scm.com/downloads
+.. _SSH: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh
+
 
 Contents
 --------

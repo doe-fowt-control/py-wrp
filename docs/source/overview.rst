@@ -1,5 +1,5 @@
-Code Overview
-=============
+Overview
+========
 
 This code was developed to imitate the style of data acquisition through a National Instruments DAQ_. 
 Data is handed in chunks to the PC whenever a certain number of samples accumulates in the `hardware` buffer,
