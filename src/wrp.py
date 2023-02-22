@@ -568,9 +568,11 @@ class WRP:
         plt.ylim([-.2, .2])
         ax.axvline(0, color = 'gray', linestyle = '-', label = 'reconstruction time')
         reconstructedLine, = ax.plot(dm.validateWrite.time, np.zeros(dm.validateWrite.nSamples), color = 'blue', label = 'reconstructed')
-        measuredLine, = ax.plot(dm.validateRead.time, np.zeros(dm.validateNSamples), color = 'red', label = 'measured')
+        measuredLine, = ax.plot(dm.validateRead.time, np.zeros(dm.validateRead.nSamples), color = 'red', label = 'measured')
+        
         tMin = ax.axvline(-1, color = 'black', linestyle = '--', label = 'reconstruction boundary')
         tMax = ax.axvline(1, color = 'black', linestyle = '--')
+        
         plt.title("Reconstruction and propagation loaded incrementally")
         plt.xlabel("time (s)")
         plt.ylabel("height (m)")

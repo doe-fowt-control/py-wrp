@@ -29,9 +29,9 @@ if __name__ == "__main__":
     with plt.ion(), nidaqmx.Task() as readTask, nidaqmx.Task() as writeTask:
 
 # PLOTS
-        # global V
-        # # initialize plotter
-        # V = wrp.setVis(dm)
+        global V
+        # initialize plotter
+        V = wrp.setVis(dm)
 
 # PORTS + TIMING
         # read task
@@ -134,13 +134,13 @@ if __name__ == "__main__":
         )
 
 # update the plot
-        # while True:
-        #     try:
-        #         if wrp.plotFlag:
-        #             wrp.updateVis(dm, V)
-        #     except KeyboardInterrupt:
-        #         quit()
+        while True:
+            try:
+                # if wrp.plotFlag:
+                wrp.updateVis(dm, V)
+            except KeyboardInterrupt:
+                quit()
 
-# use input to keep collection going
-        input('press ENTER to stop')
+# # use input to keep collection going
+#         input('press ENTER to stop')
 
