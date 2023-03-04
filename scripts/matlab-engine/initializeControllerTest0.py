@@ -7,6 +7,11 @@ eng = matlab.engine.start_matlab()
 # change engine directory to src where matlab files are
 eng.cd(r'scripts/matlab-engine/src', nargout = 0)
 
+
+d = {'a': 1, 'b':2, 'c':3}
+# can matlab
+s = eng.sum_struct(d, nargout = 1)
+print(s)
 # (float_excitation_data, 
 #  parameters_cell_array, 
 #  onlineData, 
@@ -18,8 +23,9 @@ eng.cd(r'scripts/matlab-engine/src', nargout = 0)
 #  n_y, 
 #  n_md, 
 #  nlobj) 
-t = eng.initializeController(float(5), 1, 0.05, nargout=10)
+# t = eng.initializeController(float(5), 1, 0.05, nargout=10)
 
+# print(type(t[0]))
 # # t[0]
 # AQWA = t[0]
 # AQWA['AQWA_frequencies_scaled']
@@ -65,7 +71,7 @@ t = eng.initializeController(float(5), 1, 0.05, nargout=10)
 # control_mass = t[1][33]
 # controller_sampling_time = t[1][34]
 
-print(t[3])
+# print(t[3])
 # t[2]['ref']
 # print(t[3])
 # print(t[4])
