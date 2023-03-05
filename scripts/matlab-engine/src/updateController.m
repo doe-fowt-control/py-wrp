@@ -75,11 +75,29 @@ function [mv, u_EKF, onlineData, xk, md_prediction] = ...
 % https://www.mathworks.com/help/control/ref/correct.html
 xk = correct(EKF, y, u_EKF, parameters_cell_array{:});
 
+% size(predicted_amplitude)
+% size(predicted_ang_freq)
+% size(predicted_phase)
+
+time_dims = size(prediction_horizon_times);
+if time_dims(2)~=1    % read, "if times were loaded as a row vector, turn it over"
+    prediction_horizon_times = prediction_horizon_times';
+end
+
 % Calculate excitation forces
 [predicted_preview_excitation_heave, predicted_preview_excitation_roll] ...
     = excitationForceCalculator(float_excitation_data, ...
     prediction_horizon_times, predicted_amplitude, predicted_ang_freq, ...
     predicted_phase);
+
+% % make sure all excitation forces are row vectors
+% ppeh_dims = size(predicted_preview_excitation_heave);
+% pper_dims = size(predicted_preview_excitation_roll);
+% ppwe_dims = size(predicted_preview_wave_elevation);
+
+% size(predicted_preview_excitation_heave)
+% size(predicted_preview_excitation_roll)
+% size(predicted_preview_wave_elevation)
 
 % Update measured disturbance preview across controller
 % prediction horizon to onlineData data structure

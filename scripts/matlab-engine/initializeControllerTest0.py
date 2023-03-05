@@ -1,3 +1,8 @@
+import sys
+sys.path.append('../py-wrp')
+
+from src.wrp import *
+
 import matlab.engine
 import numpy as np
 
@@ -7,25 +12,68 @@ eng = matlab.engine.start_matlab()
 # change engine directory to src where matlab files are
 eng.cd(r'scripts/matlab-engine/src', nargout = 0)
 
+# use standard timing definitions
+times = Times(
+    ta = 10,                        # reconstruction assimilation time
+    ts = 30,                        # spectral assimilation time
+    readRate = 60,                 # rate to read data
+    writeRate = 20,                # rate to write data
+    updateInterval = 1,             # interval for making a new prediction
+    postWindow = 6,                 # seconds after reconstruction to visualize
+    preWindow = 0,                  # seconds before data acquisition to visualize
+    reconstruction_delay = 0.05,     # delay for starting write task (expected computation time)
+)
 
-d = {'a': 1, 'b':2, 'c':3}
-# can matlab
-s = eng.sum_struct(d, nargout = 1)
-print(s)
-# (float_excitation_data, 
-#  parameters_cell_array, 
-#  onlineData, 
-#  ekf,
-#  y,
-#  x, 
-#  control_rack_length, 
-#  n_x, 
-#  n_y, 
-#  n_md, 
-#  nlobj) 
-# t = eng.initializeController(float(5), 1, 0.05, nargout=10)
+(float_excitation_data, 
+ parameters_cell_array, 
+ onlineData, 
+ ekf,
+ y,
+ x, 
+ controller_rack_length, 
+ n_x, 
+ n_y, 
+ n_md, 
+ nlobj) = eng.initializeController(float(5), 1, 0.05, nargout=11)
 
-# print(type(t[0]))
+# mv = matlab.double([controller_rack_length / 2])
+mv = controller_rack_length / 2
+# b = matlab.double([11, 22, 33])
+u_ekf = matlab.double([mv, 0, 0, 0])
+
+hp = 5      # number of samples in prediction horizon
+prediction_horizon_times = matlab.double([(np.arange(0, hp)/times.writeRate).tolist()])
+
+# predicted_amplitude = matlab.double(np.zeros((1, 100)).tolist())
+# predicted_ang_freq = matlab.double(np.zeros((1, 100)).tolist())
+# predicted_phase = matlab.double(np.zeros((1, 100)).tolist())
+# predicted_preview_wave_elevation = matlab.double(np.zeros((1, 5)).tolist())
+
+predicted_amplitude = matlab.double([0]*100)
+predicted_ang_freq = matlab.double([0]*100)
+predicted_phase = matlab.double([0]*100)
+predicted_preview_wave_elevation = matlab.double([0]*hp, size=[hp,1])
+
+(mv, 
+ u_ekf,
+ onlineData,
+ xk,
+ md_prediction) = eng.updateController(
+    ekf,        # EKF matlab object from initialize controller
+    y,
+    u_ekf,
+    parameters_cell_array,
+    float_excitation_data,
+    prediction_horizon_times,
+    predicted_amplitude,
+    predicted_ang_freq,
+    predicted_phase,
+    predicted_preview_wave_elevation,
+    mv,
+    onlineData, 
+    nargout = 5
+)
+
 # # t[0]
 # AQWA = t[0]
 # AQWA['AQWA_frequencies_scaled']

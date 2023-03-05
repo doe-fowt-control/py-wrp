@@ -44,6 +44,7 @@ excitation_phase_roll_interpolated = interp1(...
     AQWA_frequencies_scaled, excitation_phase_roll, ...
     angular_frequencies, 'spline', 0);
 
+
 % Total excitation forces
 total_excitation_force_heave = sum(excitation_amplitude_heave_interpolated .* free_surface_amplitudes .* cos(angular_frequencies .* time + excitation_phase_heave_interpolated + free_surface_phases), 2);
 total_excitation_force_roll = sum(excitation_amplitude_roll_interpolated .* free_surface_amplitudes .* cos(angular_frequencies .* time + excitation_phase_roll_interpolated + free_surface_phases), 2);
