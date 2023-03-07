@@ -3,6 +3,7 @@ sys.path.append('../py-wrp')
 
 from src.wrp import *
 
+
 # create wave gauge object and add gauges
 gauges = WaveGauges()
 
