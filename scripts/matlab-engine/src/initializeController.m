@@ -193,5 +193,5 @@ EKF.State = x;
 coder.extrinsic('optimoptions')
 
 % Generate MEX function to be used in main.m
-% buildMEX(nlobj, 'mexController', coreData, onlineData);
+buildMEX(nlobj, 'mexController', coreData, onlineData);
 end

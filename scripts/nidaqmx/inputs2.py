@@ -17,6 +17,10 @@ gauges.addGauge(-0.2 - xe, 0.06171777589,  "PXI2Slot5/ai5", 0)
 gauges.addGauge(-0.0 - xe, 0.06064506793,   "PXI2Slot5/ai6", 0)
 gauges.addGauge(-0, 0.06092734336,  "PXI2Slot5/ai7", 1)
 
+stringPots = WaveGauges()
+stringPots.addGauge(-0.167, 0.156, "PXI2Slot5/ai18", 0)    # roll pot
+stringPots.addGauge(0, 0.156, "PXI2Slot5/ai16", 0)
+
 times = Times(
     ta = 10,                        # reconstruction assimilation time
     ts = 30,                        # spectral assimilation time

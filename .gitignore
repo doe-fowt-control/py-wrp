@@ -12,6 +12,12 @@ __pycache__/
 # C extensions
 *.so
 
+*.c
+*.h
+*.exe
+
+**/codegen/
+
 # Distribution / packaging
 .Python
 build/

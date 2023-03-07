@@ -1,28 +1,33 @@
 import sys
 sys.path.append('../py-wrp')
 
-from src.wrp import *
+# from src.wrp import *
 
 import matlab.engine
 import numpy as np
 
 # start matlab engine
 eng = matlab.engine.start_matlab()
+# eng = matlab.engine.connect_matlab()
 
 # change engine directory to src where matlab files are
-eng.cd(r'scripts/matlab-engine/src', nargout = 0)
+eng.cd(r'src', nargout = 0)
+# # change engine directory to src where matlab files are
+# eng.cd(r'scripts/matlab-engine/src', nargout = 0)
 
-# use standard timing definitions
-times = Times(
-    ta = 10,                        # reconstruction assimilation time
-    ts = 30,                        # spectral assimilation time
-    readRate = 60,                 # rate to read data
-    writeRate = 20,                # rate to write data
-    updateInterval = 1,             # interval for making a new prediction
-    postWindow = 6,                 # seconds after reconstruction to visualize
-    preWindow = 0,                  # seconds before data acquisition to visualize
-    reconstruction_delay = 0.05,     # delay for starting write task (expected computation time)
-)
+# # use standard timing definitions
+# times = Times(
+#     ta = 10,                        # reconstruction assimilation time
+#     ts = 30,                        # spectral assimilation time
+#     readRate = 60,                 # rate to read data
+#     writeRate = 20,                # rate to write data
+#     updateInterval = 1,             # interval for making a new prediction
+#     postWindow = 6,                 # seconds after reconstruction to visualize
+#     preWindow = 0,                  # seconds before data acquisition to visualize
+#     reconstruction_delay = 0.05,     # delay for starting write task (expected computation time)
+# )
+
+writeRate = 20
 
 (float_excitation_data, 
  parameters_cell_array, 
@@ -42,7 +47,7 @@ mv = controller_rack_length / 2
 u_ekf = matlab.double([mv, 0, 0, 0])
 
 hp = 5      # number of samples in prediction horizon
-prediction_horizon_times = matlab.double([(np.arange(0, hp)/times.writeRate).tolist()])
+prediction_horizon_times = matlab.double([(np.arange(0, hp)/writeRate).tolist()])
 
 # predicted_amplitude = matlab.double(np.zeros((1, 100)).tolist())
 # predicted_ang_freq = matlab.double(np.zeros((1, 100)).tolist())
