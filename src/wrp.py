@@ -191,6 +191,28 @@ class TaskManager:
 
         [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
 
+
+class TaskManager:
+    def __init__(self):
+        self.sampleRate
+        self.handoffRate
+        self.endTime
+
+
+# functions that (could be?) borrowed from DataManager
+
+# bufferUpdate
+# preprocess
+
+# as well as basically ripping completely off `static`
+
+# defined by a 
+# sample rate, handoff rate
+
+# things used by 
+
+
+
 class DataManager:
     """Facilitates data allocation to wrp and control
     
