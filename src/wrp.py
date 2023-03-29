@@ -5,8 +5,55 @@ import matplotlib.pyplot as plt
 from numpy import genfromtxt
 import time
 
+class Prams:
+    """Parameters which alter the inversion and reconstruction process
+    These are specifically WRP parameters
+    
+    Attributes:
+        nf: number of frequencies to use for reconstruction
+        mu: threshold parameter to determine fastest/slowest 
+            group velocities for prediction zone
+        lam: regularization parameter for least squares fit
+        ta: reconstruction assimilation time
+        ts: spectral assimilation time
+        postWindow: validation reconstruction after reconstruction time
+        preWindow: validation reconstruction before reconstruction time
+        use_full_spectrum: for post-processing, whether to read the full data file to determine spectral characteristics
+        resample: whether or not to resample data (default no, should be taken care of with DAQ configuration)
+    """
+    def __init__(
+        self,
+        mg = [1,2,3,4,5,6,7],
+        pg = 8,
+        nf = 100,
+        mu = 0.05,
+        lam = 1,
+        ta = 15,
+        ts = 30,
+        postWindow = 5,
+        preWindow = 5,
+        use_full_spectrum = 1,
+        resample = 0,
+    ):
+        self.mg = mg
+        self.pg = pg
+        self.nf = nf        # number of harmonics in reconstruction
+        self.mu = mu        # cutoff threshold for prediction zone
+        self.lam = lam      # regularization in inverse problem
+        self.ta = ta 
+        self.ts = ts
 
-class WaveGauges:
+        # # round up window to nearest multiple
+        # if postWindow % updateInterval != 0: 
+        #     postWindow = postWindow + (updateInterval - (postWindow % updateInterval))
+        
+        self.postWindow = postWindow
+        self.preWindow = preWindow
+
+        self.use_full_spectrum = use_full_spectrum
+        self.resample = resample
+
+class Sensors:
     """The information needed to a interpret a physical wave measurement
     
     Contains lists with the physical locations, calibration constants, analog
@@ -29,7 +76,7 @@ class WaveGauges:
         self.portNames = []
         self.wrpRole = []      # 0 = measurement gauge, 1 = prediction gauge
 
-    def addGauge(self, position, slope, name, role):
+    def addSensor(self, position, slope = 1, name = "-", role = 0):
         """Adds details for an add gauge to class
 
         Args:
@@ -39,12 +86,12 @@ class WaveGauges:
             role: 0 for measurement, 1 for validation
 
         """
-        self.xPositions.append(position)
+        self.xPositions.append(round(position, 4))
         self.calibrationSlopes.append(slope)
         self.portNames.append(name)
         self.wrpRole.append(role)
 
-    def nGauges(self):
+    def nSensors(self):
         """Determine number of gauges which have been added"""
         return(len(self.xPositions))
 
@@ -66,80 +113,90 @@ class WaveGauges:
         pg = [i for i, e in enumerate(self.wrpRole) if e != 0]
         return pg
 
-class Prams:
-    """Parameters which alter the inversion and reconstruction process
-    
-    Attributes:
-        nf: number of frequencies to use for reconstruction
-        mu: threshold parameter to determine fastest/slowest 
-            group velocities for prediction zone
-        lam: regularization parameter for least squares fit
-    """
-    def __init__(
-        self,
-        nf = 100,
-        mu = 0.05,
-        lam = 1,
-    ):
-        self.nf = nf        # number of harmonics in reconstruction
-        self.mu = mu        # cutoff threshold for prediction zone
-        self.lam = lam      # regularization in inverse problem
+
 
 class Times:
     """Timing information for the WRP and data acquisition process
     
     Attributes:
-        ta: reconstruction assimilation time
-        ts: spectral assimilation time
-        readRate: frequency to read
-        writeRate: frequency to write
-        updateInterval: spacing between callback
-        postWindow: validation reconstruction after reconstruction time
-        preWindow: validation reconstruction before reconstruction time
-        reconstruction_delay: delay between read and write processes
+        sampleRate: frequency to sample (read/write)
+        handoffRate: frequency at which to transfer data between computer and DAQ
+        bufferStartTime: time corresponding to the oldest data stored in PC buffer for this task
+        bufferEndTime: time corresponding to the newest data stored in PC buffer for this task
+
+        # readRate: frequency to read
+        # writeRate: frequency to write
+        # updateInterval: spacing between callback
+        # reconstruction_delay: delay between read and write processes
     """
     def __init__(
         self,
-        ta = 15,
-        ts = 30,
-        readRate = 100,
-        writeRate = 100,
-        updateInterval = 1,
-        postWindow = 6,
-        preWindow = 0,
-        reconstruction_delay = 0.5,
+        sampleRate = 100,
+        handoffInterval = 1,
+        bufferStartTime = -1,
+        bufferEndTime = 1,
+        # readRate = 100,
+        # writeRate = 100,
+        # updateInterval = 1,
+        # reconstruction_delay = 0.5,
     ):
-        
-        if postWindow % updateInterval != 0: # round up window to nearest multiple
-            postWindow = postWindow + (updateInterval - (postWindow % updateInterval))
-        
+        self.sampleRate = sampleRate
+        self.handoffInterval = handoffInterval
+        self.bufferStartTime = bufferStartTime
+        self.bufferEndTime = bufferEndTime
+        # self.readRate = readRate
+        # self.writeRate = writeRate
+        # self.updateInterval = updateInterval
+        # self.reconstruction_delay = reconstruction_delay
 
-        self.ta = ta            # 
-        self.ts = ts            # 
-        self.readRate = readRate
-        self.writeRate = writeRate
-        self.updateInterval = updateInterval
-        self.postWindow = postWindow
-        self.preWindow = preWindow
-        self.reconstruction_delay = reconstruction_delay
+class TaskManager:
+    """Static arrays and their corresponding time series"""
+    def __init__(
+        self,
+        sensors,
+        sampleRate = 100,
+        handoffInterval = 1,
+        bufferStartTime = -1,
+        bufferEndTime = 1,
+    ):
 
-class static:
-    """static arrays and their corresponding time series"""
-    def __init__(self, rate, t_start, t_end, nRows):
-        dt = 1/rate
-        duration = t_end - t_start
+        # unpack timing attributes
+        self.sampleRate = sampleRate
+        self.handoffInterval = handoffInterval
+        self.bufferStartTime = bufferStartTime
+        self.bufferEndTime = bufferEndTime
+
+        # steal sensors attributes
+        self.xPositions = sensors.xPositions
+        self.calibrationSlopes = sensors.calibrationSlopes
+        self.portNames = sensors.portNames
+        self.wrpRole = sensors.wrpRole
+
+        # define alternative important timing attributes
+        self.dt = 1/sampleRate
+        self.duration = bufferEndTime - bufferStartTime
+
+        # counts sensors which were given to TaskManager as argument
+        self.nRows = sensors.nSensors()
 
         # set up read - samples, values, time -
-        self.nSamples = int(rate * duration) # int to account for non integer update intervals
-        self.values = np.zeros((nRows, self.nSamples), dtype=np.float64)
-        self.time = np.arange(t_start, t_end, dt)
+        self.nSamples = int(sampleRate * self.duration) # int to account for non integer update intervals
+        
+        # full buffer stored locally on PC
+        self.bufferValues = np.zeros((self.nRows, self.nSamples), dtype=np.float64)
+        self.time = np.arange(bufferStartTime, bufferEndTime, self.dt)
+        
+        # array for hardware buffer to deliver values
+        self.handoffValues = np.zeros((self.nRows, int(handoffInterval * sampleRate)), dtype=np.float64)
+
+        [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
 
 class DataManager:
     """Facilitates data allocation to wrp and control
     
     Args:
         pram: Params instance
-        gauges: WaveGauges instance
+        gauges: Sensors instance
         readRate: frequency to read
         writeRate: frequency to write
         updateInterval: spacing between callback
@@ -166,40 +223,40 @@ class DataManager:
         self.writeDT = 1 / self.writeRate
 
         # pull from gauges
-        self.nChannels = gauges.nGauges()       # number of channels from which to read
+        self.nChannels = gauges.nSensors()       # number of channels from which to read
         self.mg = gauges.measurementIndex()     # gauges to select for reconstruction
         self.pg = gauges.predictionIndex()      # gauges for prediction
         self.calibrationSlopes = np.expand_dims(gauges.calibrationSlopes, axis = 1)  # alter calibration constants for easy multiplying
 
-        self.read = static(
+        self.read = Static(
             self.readRate,
             0,
             self.updateInterval,
             self.nChannels,
         )
 
-        self.write = static(
+        self.write = Static(
             self.writeRate,
             reconstruction_delay,
             self.updateInterval + reconstruction_delay,
             1,
         )
 
-        self.buffer = static(
+        self.buffer = Static(
             self.readRate,
             -time.ts,
             0,
             self.nChannels,
         )
 
-        self.validateWrite = static(
+        self.validateWrite = Static(
             self.writeRate,
             -time.ta - time.preWindow,
             time.postWindow,
             self.nChannels
         )
 
-        self.validateRead = static(
+        self.validateRead = Static(
             self.readRate,
             -time.ta - time.preWindow,
             time.postWindow,
@@ -315,18 +372,18 @@ class DataManager:
         processedData = self.preprocess(data, self.pg)
         return processedData
 
-    def preprocess(self, data, whichGauges):
+    def preprocess(self, data, whichSensors):
         """scales data by calibration constants and subtracts the mean
         
         Args: 
             data: array of values to be processed
-            whichGauges: the indices of the gauges which correspond to the data being processed
+            whichSensors: the indices of the gauges which correspond to the data being processed
         
         Returns: 
             array of processed data
         """
         # scale by calibration constants
-        data *= self.calibrationSlopes[whichGauges]
+        data *= self.calibrationSlopes[whichSensors]
 
         # center on mean
         dataMeans = np.expand_dims(np.mean(data, axis = 1), axis = 1)
@@ -340,7 +397,7 @@ class WRP:
     """Implements methods of wave reconstruction and propagation
 
     Args: 
-        gauges: instance of WaveGauges
+        gauges: instance of Sensors
     """
     def __init__(self, pram, gauges, time):
         self.mu = pram.mu
@@ -494,6 +551,7 @@ class WRP:
         T = np.reshape(T, (1, np.size(T)), order='F')        
         eta = np.reshape(eta, (np.size(eta), 1))
 
+
         psi = np.transpose(self.k@X - self.w@T)
 
         
@@ -614,7 +672,7 @@ class WRP:
 
 
 class DataLoader:
-    """Hands data from a static file to DataManager
+    """Hands data from a Static file to DataManager
     
     Args:
         dataFile: location of csv file with wave measurements, samples 
@@ -640,7 +698,7 @@ class DataLoader:
         self.validateCurrentIndex = 0
 
     def generateBuffersStatic(self, dm, reconstructionTime):
-        """Goes to specified time in static file and assigns data accordingly
+        """Goes to specified time in Static file and assigns data accordingly
         
         Args: 
             dm: instance of DataManager
