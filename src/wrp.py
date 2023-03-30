@@ -34,6 +34,8 @@ class Prams:
         preWindow = 5,
         use_full_spectrum = 1,
         resample = 0,
+        updateInterval = 1,
+        wrpRate = 100,
     ):
         self.mg = mg
         self.pg = pg
@@ -42,6 +44,9 @@ class Prams:
         self.lam = lam      # regularization in inverse problem
         self.ta = ta 
         self.ts = ts
+        self.updateInterval = updateInterval
+        self.wrpRate = wrpRate
+        self.wrpDT = (1/self.wrpRate)
 
         # # round up window to nearest multiple
         # if postWindow % updateInterval != 0: 
@@ -110,8 +115,18 @@ class Sensors:
         Returns:
             A list of indices
         """
-        pg = [i for i, e in enumerate(self.wrpRole) if e != 0]
+        pg = [i for i, e in enumerate(self.wrpRole) if e == 1]
         return pg
+    
+    def stringPotIndex(self):
+        """Find indices of string potentiometers for roll and heave measurements
+        
+        Returns:
+            A list of indices
+        """
+        sp = [i for i, e in enumerate(self.wrpRole) if e == 2]
+        return sp
+
 
 
 
@@ -162,8 +177,6 @@ class TaskManager:
         [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
 
 
-
-
     def bufferUpdate(self):
         """adds data present in handoffValues to the end of bufferValues
         by shifting existing data and removing the oldest
@@ -175,7 +188,7 @@ class TaskManager:
         # write over old data with new data
         self.bufferValues[:, -self.nHandoffSamples:] = self.handoffValues
 
-    def preprocess(self, data, whichSensors):
+    def preprocess(self, data, whichSensors, newRate = "default"):
         """scales data by calibration constants and subtracts the mean
         
         Args: 
@@ -185,6 +198,16 @@ class TaskManager:
         Returns: 
             array of processed data
         """
+
+        # downsample to specified rate if given
+        if newRate != "default":
+            # check that new rate is actually lower than the given sample rate
+            if newRate < self.sampleRate:
+                resample_interval = int(self.sampleRate / newRate)
+                data = data[:, 0::resample_interval]
+            else:
+                print("WRP rate is less than sample rate")
+
         # scale by calibration constants
         scale = np.expand_dims(np.array(self.calibrationSlopes)[whichSensors], axis = 1)
         data *= scale
@@ -207,7 +230,7 @@ class TaskManager:
         data = self.bufferValues[self.mg, :]
 
         # center on mean
-        processedData = self.preprocess(data, self.mg)
+        processedData = self.preprocess(data, self.mg, 100)
 
         return processedData
     
@@ -228,7 +251,7 @@ class TaskManager:
         # select measurement gauges across reconstruction time
         data = self.bufferValues[self.mg, -assimilationSamples:]
 
-        processedData = self.preprocess(data, self.mg)
+        processedData = self.preprocess(data, self.mg, 100)
         return processedData
 
 
@@ -249,13 +272,16 @@ class WRP:
         self.ts = pram.ts
         self.postWindow = pram.postWindow
         self.preWindow = pram.preWindow
+        self.updateInterval = pram.updateInterval
+        self.wrpRate = pram.wrpRate
+        self.wrpDT = pram.wrpDT
 
 # unpack waveTaskManager object
         self.x = wtm.xPositions
         self.calibration = wtm.calibrationSlopes
         self.mg = wtm.mg    # gauges to select for reconstruction
         self.pg = wtm.pg    # gauges for prediction
-        self.updateInterval = wtm.handoffInterval
+        # self.updateInterval = wtm.handoffInterval
 
         self.inversionNSaved = int(self.postWindow / self.updateInterval) + 1
         self.inversionSavedValues = np.zeros((2, self.inversionNSaved, pram.nf))
@@ -266,6 +292,12 @@ class WRP:
         self.xpred = np.array(self.x)[self.pg]
 
         self.plotFlag = False
+
+        # flags for trigger from read_callback
+        self.readIteration = 0
+        self.readIterationLimit = int(self.updateInterval / wtm.handoffInterval)
+
+
 
     def spectral(self, wtm):
         """Calculates spectral information
@@ -288,6 +320,7 @@ class WRP:
         data = wtm.spectralData()
 
         print('spectral data acquired')
+        # print(np.shape(data))
 
         # check to see if the buffer is filled
         self.bufferFilled = data[0][0] != data[0][1]
@@ -385,7 +418,8 @@ class WRP:
 
     # get data
         eta = wtm.reconstructionData(self.ta)
-        t = np.arange(-self.ta, 0, wtm.dt)
+        print(np.shape(eta))
+        t = np.arange(-self.ta, 0, self.wrpDT)
         x = np.array(self.x)[self.mg]
 
     # grid data and reshape for matrix operations
@@ -445,9 +479,9 @@ class WRP:
         sumMatrix = np.ones((1, self.nf))
 
         if intent == 'validate':
-            validateTime = np.arange(-self.ta - self.preWindow, self.postWindow, wtm.dt)
+            validateTime = np.arange(-self.ta - self.preWindow, self.postWindow, self.wrpDT)
             t = np.expand_dims(validateTime, axis = 0)
-            print(self.xpred)
+            # print(self.xpred)
             dx = self.xpred * np.ones((1, len(validateTime)))
             
             a, b = self.inversionGetValues('validate')
@@ -458,11 +492,17 @@ class WRP:
             self.reconstructedSurfaceValidate = sumMatrix @ (acos + bsin)
 
         if intent == 'predict':
-
+            # predictTime = np.arange(0, self.postWindow, self.wrpDT)
+            # t = np.expand_dims(predictTime, axis = 0)
             t = np.expand_dims(mpctm.time, axis = 0)
-            dx = self.xpred * np.ones((1, mpctm.nHandoffSamples))
+            dx = self.xpred * np.ones((1, len(t)))
 
             a, b = self.inversionGetValues('predict')
+            
+            # print(np.shape(t))
+            # print(np.shape(dx))
+            # print(np.shape(a))
+            # print(np.shape(b))
 
             acos = a * np.cos( (self.k @ dx) - self.w @ t )
             bsin = b * np.sin( (self.k @ dx) - self.w @ t )   
