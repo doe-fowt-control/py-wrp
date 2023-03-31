@@ -36,6 +36,7 @@ class Prams:
         resample = 0,
         updateInterval = 1,
         wrpRate = 100,
+        controlRate = 20,
     ):
         self.mg = mg
         self.pg = pg
@@ -45,8 +46,12 @@ class Prams:
         self.ta = ta 
         self.ts = ts
         self.updateInterval = updateInterval
+        
         self.wrpRate = wrpRate
         self.wrpDT = (1/self.wrpRate)
+
+        self.controlRate = controlRate
+        self.controlDT = (1/self.controlRate)
 
         # # round up window to nearest multiple
         # if postWindow % updateInterval != 0: 
@@ -273,8 +278,12 @@ class WRP:
         self.postWindow = pram.postWindow
         self.preWindow = pram.preWindow
         self.updateInterval = pram.updateInterval
+        
         self.wrpRate = pram.wrpRate
         self.wrpDT = pram.wrpDT
+
+        self.controlRate = pram.controlRate
+        self.controlDT = pram.controlDT
 
 # unpack waveTaskManager object
         self.x = wtm.xPositions
@@ -294,8 +303,44 @@ class WRP:
         self.plotFlag = False
 
         # flags for trigger from read_callback
-        self.readIteration = 0
-        self.readIterationLimit = int(self.updateInterval / wtm.handoffInterval)
+        self.controlIteration = 0
+        self.controlIterationLimit = int(self.updateInterval / self.controlDT)
+
+        # flag indicating if a new prediction is ready
+        self.new_ready = 0
+
+        # elevation time series is twice the length of the update interval
+        self.controlTime = np.arange(0, 2*self.updateInterval, self.controlDT)
+
+        self.controlElevationTimeSeriesOld = np.zeros(len(self.controlTime))
+        self.controlAmplitudesOld = np.zeros(self.nf)
+        self.controlFrequenciesOld = np.zeros(self.nf)
+        self.controlPhasesOld = np.zeros(self.nf)
+
+        self.controlElevationTimeSeriesNew = np.zeros(len(self.controlTime))
+        self.controlAmplitudesNew = np.zeros(self.nf)
+        self.controlFrequenciesNew = np.zeros(self.nf)
+        self.controlPhasesNew = np.zeros(self.nf)
+    
+    def cycleControlArrays(self):
+        # out with the old, in with the new
+        self.controlElevationTimeSeriesOld = self.controlElevationTimeSeriesNew
+        self.controlAmplitudesOld = self.controlAmplitudesNew
+        self.controlFrequenciesOld = self.controlFrequenciesNew
+        self.controlPhasesOld = self.controlPhasesNew
+
+        # out with the new, in with the fresh
+        self.controlElevationTimeSeriesNew = self.reconstructedSurfacePredict
+        self.controlAmplitudesNew = self.A
+        self.controlFrequenciesNew = self.w
+        self.controlPhasesNew = self.phi
+
+        time.sleep(0.5)
+
+        # declare new data available
+        self.new_ready = 1
+
+
 
 
 
@@ -380,7 +425,7 @@ class WRP:
             self.k_max = 2 * np.pi / min(abs(np.diff(self.x)))
 
 
-    def lwt(self, wtm, mpctm):
+    def lwt(self, wtm):
         """Runs complete set of in-the-loop operations for linear wave theory
         
         # this single call to the icwm method does a bunch of stuff
@@ -396,8 +441,8 @@ class WRP:
         # only do the actions once enough data is available to evaluate the spectrum
         if self.bufferFilled:
             self.inversion_lwt(wtm)
-            self.reconstruct_lwt(wtm, mpctm, 'validate')
-            self.reconstruct_lwt(wtm, mpctm, 'predict')
+            self.reconstruct_lwt(wtm, 'validate')
+            self.reconstruct_lwt(wtm, 'predict')
 
 
     def inversion_lwt(self, wtm):
@@ -458,7 +503,7 @@ class WRP:
         self.inversionUpdate(a, b)
 
 
-    def reconstruct_lwt(self, wtm, mpctm, intent):
+    def reconstruct_lwt(self, wtm, intent):
         """Reconstructs surface using saved inversion values
         
         Calculates upper and lower limit time boundary for reconstruction time.
@@ -494,7 +539,8 @@ class WRP:
         if intent == 'predict':
             # predictTime = np.arange(0, self.postWindow, self.wrpDT)
             # t = np.expand_dims(predictTime, axis = 0)
-            t = np.expand_dims(mpctm.time, axis = 0)
+            # t = np.expand_dims(mpctm.time, axis = 0)
+            t = np.expand_dims(self.controlTime, axis = 0)
             dx = self.xpred * np.ones((1, len(t)))
 
             a, b = self.inversionGetValues('predict')
