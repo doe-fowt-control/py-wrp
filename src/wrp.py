@@ -63,6 +63,58 @@ class Prams:
         self.use_full_spectrum = use_full_spectrum
         self.resample = resample
 
+
+class Controller:
+    def __init__(
+            self,
+            hp,
+            prediction_horizon_times,
+            mv,
+            u_ekf,
+            predicted_amplitude_old,
+            predicted_ang_freq_old,
+            predicted_phase_old,
+            predicted_wave_elevation_old,
+            predicted_amplitude_new,
+            predicted_ang_freq_new,
+            predicted_phase_new,
+            predicted_wave_elevation_new,            
+            float_excitation_data, 
+            parameters_cell_array, 
+            onlineData, 
+            ekf,
+            y,
+            x, 
+            controller_rack_length, 
+            n_x, 
+            n_y, 
+            n_md, 
+            nlobj,
+    ):
+        self.hp = hp
+        self.mv = mv
+        self.prediction_horizon_times = prediction_horizon_times
+        self.u_ekf = u_ekf
+        self.predicted_amplitude_old = predicted_amplitude_old,
+        self.predicted_ang_freq_old = predicted_ang_freq_old,
+        self.predicted_phase_old = predicted_phase_old,
+        self.predicted_wave_elevation_old = predicted_wave_elevation_old,
+        self.predicted_amplitude_new = predicted_amplitude_new,
+        self.predicted_ang_freq_new = predicted_ang_freq_new,
+        self.predicted_phase_new = predicted_phase_new,
+        self.predicted_wave_elevation_new = predicted_wave_elevation_new,
+        self.float_excitation_data = float_excitation_data
+        self.parameters_cell_array = parameters_cell_array
+        self.onlineData = onlineData
+        self.ekf = ekf
+        self.y = y
+        self.x = x
+        self.controller_rack_length = controller_rack_length
+        self.n_x = n_x
+        self.n_y = n_y
+        self.n_md = n_md
+        self.nlobj = nlobj
+
 class Sensors:
     """The information needed to a interpret a physical wave measurement
     
@@ -235,7 +287,7 @@ class TaskManager:
         data = self.bufferValues[self.mg, :]
 
         # center on mean
-        processedData = self.preprocess(data, self.mg, 100)
+        processedData = self.preprocess(data, self.mg)
 
         return processedData
     
@@ -256,7 +308,7 @@ class TaskManager:
         # select measurement gauges across reconstruction time
         data = self.bufferValues[self.mg, -assimilationSamples:]
 
-        processedData = self.preprocess(data, self.mg, 100)
+        processedData = self.preprocess(data, self.mg)
         return processedData
 
 
@@ -359,12 +411,12 @@ class WRP:
         Args:
             dm: instance of DataManager
         """
-        print('spectral data requested')
+        # print('spectral data requested')
 
         # assign spectral variables to wrp class
         data = wtm.spectralData()
 
-        print('spectral data acquired')
+        # print('spectral data acquired')
         # print(np.shape(data))
 
         # check to see if the buffer is filled
@@ -463,7 +515,7 @@ class WRP:
 
     # get data
         eta = wtm.reconstructionData(self.ta)
-        print(np.shape(eta))
+        # print(np.shape(eta))
         t = np.arange(-self.ta, 0, self.wrpDT)
         x = np.array(self.x)[self.mg]
 
