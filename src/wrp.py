@@ -264,6 +264,10 @@ class TaskManager:
 
         [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
 
+        self.done_sampling = 1
+
+        self.initialReadings = np.zeros(self.nRows)
+        self.sensorsNotInitialized = 1        
 
     def bufferUpdate(self):
         """adds data present in handoffValues to the end of bufferValues
@@ -396,7 +400,7 @@ class WRP:
         self.new_ready = 0
 
         # elevation time series is twice the length of the update interval
-        self.controlTime = np.arange(0, 2*self.updateInterval, self.controlDT)
+        self.controlTime = np.arange(0, 2*self.updateInterval + self.controlDT, self.controlDT)
 
         self.controlElevationTimeSeriesOld = np.zeros((self.hp, 1))
         self.controlAmplitudesOld = np.zeros((1, self.nf))
@@ -409,6 +413,8 @@ class WRP:
         self.controlFrequenciesNew = np.zeros((1, self.nf))
         self.controlPhasesNew = np.zeros((1, self.nf))
         self.eta_of_t_new = lambda x : x
+
+        self.bufferFilled = 0
     
     def cycleControlArrays(self):
         # out with the old, in with the new
@@ -527,13 +533,13 @@ class WRP:
         """
         self.spectral(wtm)
 
-        print('spectrum calculated')
+        # print('spectrum calculated')
         
         # only do the actions once enough data is available to evaluate the spectrum
-        if self.bufferFilled:
-            self.inversion_lwt(wtm)
-            self.reconstruct_lwt(wtm, 'validate')
-            self.reconstruct_lwt(wtm, 'predict')
+        # if self.bufferFilled:
+        self.inversion_lwt(wtm)
+        self.reconstruct_lwt(wtm, 'validate')
+        self.reconstruct_lwt(wtm, 'predict')
 
 
     def inversion_lwt(self, wtm):
