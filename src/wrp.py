@@ -415,6 +415,8 @@ class WRP:
         self.eta_of_t_new = lambda x : x
 
         self.bufferFilled = 0
+
+        self.calls2spectral = 0
     
     def cycleControlArrays(self):
         # out with the old, in with the new
@@ -464,9 +466,12 @@ class WRP:
         # print('spectral data acquired')
         # print(np.shape(data))
 
+        self.calls2spectral += 1
+        if self.calls2spectral > 10:
+            self.bufferFilled = 1
         # check to see if the buffer is filled
-        self.bufferFilled = data[0][0] != data[0][1]
-        self.bufferFilled = 1
+        # self.bufferFilled = data[0][0] != data[0][1]
+        # self.bufferFilled = 1
         # print(self.bufferFilled)
 
 
@@ -536,10 +541,10 @@ class WRP:
         # print('spectrum calculated')
         
         # only do the actions once enough data is available to evaluate the spectrum
-        # if self.bufferFilled:
-        self.inversion_lwt(wtm)
-        self.reconstruct_lwt(wtm, 'validate')
-        self.reconstruct_lwt(wtm, 'predict')
+        if self.bufferFilled:
+            self.inversion_lwt(wtm)
+            self.reconstruct_lwt(wtm, 'validate')
+            self.reconstruct_lwt(wtm, 'predict')
 
 
     def inversion_lwt(self, wtm):
