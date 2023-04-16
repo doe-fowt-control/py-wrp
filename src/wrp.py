@@ -262,7 +262,7 @@ class TaskManager:
         self.handoffValues = np.zeros((self.nRows, int(handoffInterval * sampleRate)), dtype=np.float64)
         
 
-        [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
+        [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='ij')
 
         self.done_sampling = 1
 
@@ -277,8 +277,14 @@ class TaskManager:
         """
         # shift old data to the end of the matrix
         self.bufferValues = np.roll(self.bufferValues, -self.nHandoffSamples)
-        # write over old data with new data
+
+        # write over old data with new data (shifted and scaled)
         self.bufferValues[:, -self.nHandoffSamples:] = self.handoffValues
+
+        # means = np.expand_dims(np.mean(self.bufferValues, axis = 1), axis = 1)
+        # self.bufferValues -= means
+
+
 
     def preprocess(self, data, whichSensors, newRate = "default"):
         """scales data by calibration constants and subtracts the mean
@@ -400,19 +406,19 @@ class WRP:
         self.new_ready = 0
 
         # elevation time series is twice the length of the update interval
-        self.controlTime = np.arange(0, 2*self.updateInterval + self.controlDT, self.controlDT)
+        self.controlTime = np.arange(0, 4*self.updateInterval + self.controlDT, self.wrpDT)
 
         self.controlElevationTimeSeriesOld = np.zeros((self.hp, 1))
         self.controlAmplitudesOld = np.zeros((1, self.nf))
         self.controlFrequenciesOld = np.zeros((1, self.nf))
         self.controlPhasesOld = np.zeros((1, self.nf))
-        self.eta_of_t_old = lambda x : x
+        self.eta_of_t_old = lambda x : 0*x
 
         self.controlElevationTimeSeriesNew = np.zeros((self.hp, 1))
         self.controlAmplitudesNew = np.zeros((1, self.nf))
         self.controlFrequenciesNew = np.zeros((1, self.nf))
         self.controlPhasesNew = np.zeros((1, self.nf))
-        self.eta_of_t_new = lambda x : x
+        self.eta_of_t_new = lambda x : 0*x
 
         self.bufferFilled = 0
 
@@ -426,18 +432,39 @@ class WRP:
         self.controlPhasesOld = self.controlPhasesNew
         self.eta_of_t_old = self.eta_of_t_new
 
-    def updateControlArrays(self):
+    def updateControlArrays(self, eta = "default", w = "default", A = "default", phi = "default"):
         # out with the new, in with the fresh
-        self.controlElevationTimeSeriesNew = self.reconstructedSurfacePredict
-        self.controlAmplitudesNew = self.A
-        self.controlFrequenciesNew = self.w
-        self.controlPhasesNew = self.phi
-        self.eta_of_t_new = interpolate.interp1d(self.controlTime, self.reconstructedSurfacePredict)
+        if eta == "default":
+            eta = self.reconstructedSurfacePredict
+        if w == "default":
+            w = self.w
+        if A == "default":
+            A = self.A
+        if phi == "default":
+            phi = self.phi
 
-        # time.sleep(0.5)
+        
+        self.controlElevationTimeSeriesNew = eta
 
-        # # declare new data available (move this to main script)
-        # self.new_ready = 1
+        self.controlFrequenciesNew = w
+        self.controlAmplitudesNew = A
+        self.controlPhasesNew = phi
+
+        eta1 = self.eta_of_t_old(np.arange(self.updateInterval, 2*self.updateInterval, self.controlDT))
+        eta1 = np.array(eta1)
+        eta = np.array(eta)
+        # print(eta1)
+        # print(eta)
+        n = len(eta1)
+        for i in range(n):
+            p = i / n
+            w1 = 1 - p
+            w2 = p
+            # print(i)
+            eta_mid = (eta1[i] * w1 + eta[0, i] * w2) / 2
+            eta[0,i] = eta_mid
+        # print(eta)
+        self.eta_of_t_new = interpolate.CubicSpline(self.controlTime, eta[0]) # interp1d
 
 
 
