@@ -262,7 +262,7 @@ class TaskManager:
         self.handoffValues = np.zeros((self.nRows, int(handoffInterval * sampleRate)), dtype=np.float64)
         
 
-        [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='ij')
+        [self.Xmesh, self.Tmesh] = np.meshgrid(self.xPositions, self.time, indexing='xy')
 
         self.done_sampling = 1
 
