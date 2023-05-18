@@ -10,20 +10,20 @@ if __name__ == "__main__":
     duration = 10
     nSamples = sampleRate * duration
 
-    portNames = [
-        "PXI1Slot5/ai0",
-        "PXI1Slot5/ai1",
-        "PXI1Slot5/ai2",
-        "PXI1Slot5/ai3",
-        "PXI1Slot5/ai4",
-        "PXI1Slot5/ai5",
-        "PXI1Slot5/ai6",
-        "PXI1Slot5/ai7",
-    ]
     # portNames = [
-    #     "PXI1Slot7/ai0",
-    #     "PXI1Slot7/ai1",
+    #     "PXI1Slot5/ai0",
+    #     "PXI1Slot5/ai1",
+    #     "PXI1Slot5/ai2",
+    #     "PXI1Slot5/ai3",
+    #     "PXI1Slot5/ai4",
+    #     "PXI1Slot5/ai5",
+    #     "PXI1Slot5/ai6",
+    #     "PXI1Slot5/ai7",
     # ]
+    portNames = [
+        "PXI1Slot7/ai0",
+        "PXI1Slot7/ai1",
+    ]
 
     with nidaqmx.Task() as readTask:
         
