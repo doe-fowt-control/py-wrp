@@ -405,7 +405,7 @@ class WRP:
         # flag indicating if a new prediction is ready
         self.new_ready = 0
 
-        # elevation time series is twice the length of the update interval
+        # elevation time series is four times the length of the update interval
         self.controlTime = np.arange(0, 4*self.updateInterval + self.controlDT, self.wrpDT)
 
         self.controlElevationTimeSeriesOld = np.zeros((self.hp, 1))
